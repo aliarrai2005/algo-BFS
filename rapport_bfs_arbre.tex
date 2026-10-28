@@ -1,0 +1,120 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible
+}
+
+\title{TP : parcours en largeur (BFS)\\d'un arbre binaire}
+\author{Ali Arrai}
+\date{28 octobre 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Ce TP présente le parcours en largeur (BFS) appliqué à un arbre binaire,
+programmé en C++. Contrairement aux parcours en profondeur, le BFS visite les
+nœuds niveau par niveau : d'abord la racine, puis ses fils, puis les fils de
+ses fils, et ainsi de suite. Il s'appuie sur une file (\texttt{queue}).
+
+\section{Représentation de l'arbre}
+Chaque nœud est un objet de la classe \texttt{noeud}, qui contient :
+\begin{itemize}
+  \item une valeur entière \texttt{data} ;
+  \item un pointeur vers le fils gauche \texttt{fg} ;
+  \item un pointeur vers le fils droit \texttt{fd}.
+\end{itemize}
+Des accesseurs \texttt{get\_fg}, \texttt{get\_fd} et des modificateurs
+\texttt{set\_fg}, \texttt{set\_fd} permettent de relier les nœuds. La fonction
+de parcours est déclarée \texttt{friend} afin de lire directement la valeur
+d'un nœud.
+
+\section{Algorithme}
+Le principe est le suivant :
+\begin{enumerate}
+  \item si l'arbre est vide, on s'arrête ;
+  \item on place la racine dans la file et on affiche sa valeur ;
+  \item tant que la file n'est pas vide, on retire le nœud en tête ; si ce
+        nœud a un fils gauche, on l'ajoute à la file et on affiche sa valeur ;
+        on fait de même pour le fils droit.
+\end{enumerate}
+Les nœuds sont donc affichés dans l'ordre où ils entrent dans la file, c'est-à-dire
+niveau par niveau et de gauche à droite.
+
+\begin{lstlisting}
+void parcourt_BFS(noeud* arbre) {
+    if (arbre == nullptr) return;
+    queue<noeud*> q;
+    q.push(arbre);
+    cout << arbre->data << ", ";
+    while (!q.empty()) {
+        noeud* current = q.front();
+        q.pop();
+        if (current->fg != nullptr) {
+            q.push(current->fg);
+            cout << current->fg->data << ", ";
+        }
+        if (current->fd != nullptr) {
+            q.push(current->fd);
+            cout << current->fd->data << ", ";
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Exemple et résultat}
+Le programme principal construit un arbre de 12 nœuds de racine 7 :
+\begin{itemize}
+  \item 7 a pour fils 9 (gauche) et 67 (droit) ;
+  \item 9 a pour fils 1 et 28 ; 28 a pour fils 29 et 2 ;
+  \item 67 a pour fils 8 et 10 ; 8 a pour fils 57 et 40 ;
+  \item 10 a un seul fils droit, 6.
+\end{itemize}
+
+L'exécution affiche l'ordre de parcours suivant :
+\[
+  7,\ 9,\ 67,\ 1,\ 28,\ 8,\ 10,\ 29,\ 2,\ 57,\ 40,\ 6.
+\]
+
+Cet ordre correspond bien aux niveaux de l'arbre :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cl}
+\toprule
+\textbf{Niveau} & \textbf{Nœuds visités} \\
+\midrule
+0 & 7 \\
+1 & 9, 67 \\
+2 & 1, 28, 8, 10 \\
+3 & 29, 2, 57, 40, 6 \\
+\bottomrule
+\end{tabular}
+\caption{Nœuds de l'arbre par niveau.}
+\end{table}
+
+\section{Analyse}
+Chaque nœud entre une seule fois dans la file et en sort une seule fois, donc
+le parcours coûte $O(n)$ pour un arbre de $n$ nœuds. La file contient au plus
+un niveau de l'arbre, ce qui peut représenter jusqu'à $O(n)$ nœuds en mémoire
+dans le pire cas, pour un arbre très large.
+
+\section{Conclusion}
+Ce TP montre comment une file permet de parcourir un arbre binaire en largeur,
+en visitant les nœuds dans l'ordre de leur profondeur. Le résultat obtenu sur
+l'exemple confirme ce comportement : les nœuds apparaissent niveau par niveau,
+de gauche à droite.
+
+\end{document}
